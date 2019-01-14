@@ -1,0 +1,151 @@
+<div class="layui-form" lay-filter="admin-form-permission" style="padding: 20px 30px 0 0;">
+    <script type="text/html" template>
+        <input type="hidden" name="id" value="{{ d.params.id || '' }}">
+    </script>
+    <div class="layui-form-item">
+        <label class="layui-form-label">权限名称</label>
+        <div class="layui-input-block">
+            <script type="text/html" template>
+                <input type="text" name="show_name" title="显示名称" value="{{ d.params.show_name || '' }}" 
+                class="layui-input" lay-verify="required" placeholder="权限显示名称" autocomplete="off">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">权限标识</label>
+        <div class="layui-input-block">
+            <script type="text/html" template>
+                <input type="text" name="name" title="权限标识" value="{{ d.params.name || '' }}" 
+                class="layui-input" lay-verify="required|name" placeholder="权限唯一标识(英文字母下划线)" autocomplete="off">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">权限状态</label>
+        <div class="layui-input-block">
+            <script type="text/html" template>
+                <input type="checkbox" lay-filter="status" name="status" {{ d.params.status==1 ? 'checked' : '' }} lay-skin="switch" lay-text="开启|关闭">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">菜单显示</label>
+        <div class="layui-input-block">
+            <script type="text/html" template>
+                <input type="checkbox" lay-filter="visible" name="visible" {{ d.params.visible==1 ? 'checked' : '' }} lay-skin="switch" lay-text="显示|隐藏">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">父级菜单</label>
+        <div class="layui-input-block">
+            <script type="text/html" template>
+                <input type="hidden" name="parent_id" value="{{ d.params.parent_id || 0 }}">
+            </script>
+            <input type="text" id="permission-select" lay-filter="permission-select" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">菜单图标</label>
+        <div class="layui-input-block">
+            <script type="text/html" template>
+                <input type="text" name="icon" title="菜单图标" value="{{ d.params.icon || '' }}" 
+                class="layui-input" placeholder="layui-icon-??" autocomplete="off">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">跳转地址</label>
+        <div class="layui-input-block">
+            <script type="text/html" template>
+                <input type="text" name="jump" title="显示地址" value="{{ d.params.jump || '' }}" 
+                class="layui-input" lay-verify="required" placeholder="跳转地址" autocomplete="off">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <input type="button" lay-submit lay-filter="user-permission-submit" value="确认" class="layui-btn layui-btn-normal">
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['admin', 'form', 'layer', 'treeSelect'], function () {
+        var $ = layui.$,
+            form = layui.form,
+            admin = layui.admin,
+            setter = layui.setter,
+            treeSelect= layui.treeSelect;
+
+        var local = layui.data(setter.tableName);
+        var token = local[setter.request.tokenName];
+
+        form.verify({
+            name : function(value) {
+                if (!/^[a-zA-z]([a-zA-z0-9_])+$/.test(value)){
+                    return "权限标识符首字母只能为英文字母";
+                }
+            }
+        });
+ 
+        function permissionRender(data) {
+            //转换数组结构
+            var transform = function (List, parentId) {
+                var result = [];
+                for (var i = 0; i < List.length; i++) {
+                    var node = List[i];
+                    if (node.parent_id == parentId) {
+                        nodes = transform(List, node.id);
+                        nodes = nodes.length == 0 ? null : nodes;
+                        var newNode = {
+                            id      : node.id,
+                            pid     : node.parent_id,
+                            name    : node.show_name,
+                            open    : true,
+                            children: transform(List, node.id)
+                        };
+                        result.push(newNode);
+                    }
+                }
+                return result;
+            };
+
+            //附加顶级菜单
+            var newData = [{
+                id  : 0,
+                name: "---顶级菜单---",
+            }].concat(transform(data, 0));
+
+            treeSelect.render({
+                elem: '#permission-select',
+                data: newData,
+                placeholder: '请选择父级权限',
+                search: true,
+                style: {
+                    folder: {
+                        enable: false
+                    },
+
+                },
+                click: function (d) {
+                    $("input[name='parent_id']").val(d.current.id);
+                },
+                success: function (d) {
+                    var id = $("input[name='parent_id']").val();
+                    treeSelect.checkNode('permission-select', id);
+                }
+            });
+        }
+    
+        admin.req({
+            url: "/api/permissions/lists",
+            type: "get",
+            data: { token },
+            done: function (res) {
+                permissionRender(res.data);
+            }
+        })
+    });
+</script>

@@ -1,0 +1,136 @@
+<script type="text/html" template>
+    <script type="text/javascript" src="{{ layui.setter.base }}js/common.js?v={{ layui.admin.v }}"></script>
+</script>
+
+<title>后台用户管理</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>用户</cite></a>
+        <a><cite>后台管理员</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-useradmin-formlist">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">登录名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="username" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">手机号</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="phone" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="LAY-user-back-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layui-btn-warm layuiadmin-btn-admin" data-type="batchDel">删除</button>
+                <button class="layui-btn layuiadmin-btn-admin" data-type="append">添加</button>
+            </div>
+
+            <table id="LAY-user-back-manage" lay-filter="LAY-user-back-manage"></table>
+            <script type="text/html" id="buttonTpl">
+        {{#  if(d.status == 0){ }}
+            <button class="layui-btn layui-btn-primary layui-btn-xs">待审核</button>
+        {{#  } else if(d.status == 1) { }}
+            <button class="layui-btn layui-btn-xs">已审核</button>
+        {{# } else { }}
+            <button class="layui-btn layui-btn-xs layui-btn-warm">已封禁</button>
+        {{#  } }}
+            </script>
+            <script type="text/html" id="table-useradmin-admin">
+            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use('useradmin', layui.factory('useradmin')).use(['admin', 'useradmin', 'table'], function () {
+        var $ = layui.$,
+            layer = layui.layer,
+            admin = layui.admin,
+            form = layui.form,
+            view = layui.view,
+            table = layui.table
+
+        form.render(null, "layadmin-useradmin-formlist");
+
+        var events = {
+            batchDel: function () {
+                var checkStatus = table.checkStatus("LAY-user-back-manage"),
+                    checkData = checkStatus.data; //得到选中的数据
+                if (checkData.length === 0) {
+                    return layer.msg("请选择进行操作的数据");
+                }
+
+                layer.confirm(
+                    "确定要删除选定的用户吗?", {
+                        btn : ['确认删除', '我再想想'],
+                        yes : function(index) {
+                            admin.req({
+                                url: "/api/user/delete",
+                                type: "POST",
+                                data: { list: checkData },
+                                success: function(res) {
+                                    layer.close(index);
+                                    if (res.code == 0) {
+                                        layer.msg("选定的用户已删除成功!");
+                                        table.reload("LAY-user-back-manage");
+                                    }
+                                }
+                            })
+                        }
+                    }
+                )
+            },
+            append: function () {
+                admin.popup({
+                    title: "添加管理员",
+                    area: ["450px", "550px"],
+                    resize: false,
+                    id: "LAY-popup-useradmin-add",
+                    success: function (layero, index) {
+                        view(this.id)
+                            .render("/setting/user/userform")
+                            .done(function () {
+                                form.render(null, "layuiadmin-form-admin");
+                                form.on("submit(LAY-user-back-submit)", function (data) {
+                                    admin.req({
+                                        url: "/api/user/register",
+                                        type: "POST",
+                                        data: data.field,
+                                        done : function(res) {
+                                            layui.table.reload("LAY-user-back-manage"); //重载表格
+                                            layer.close(index);     //执行关闭
+                                        }
+                                    })
+                                });
+                            });
+                    }
+                });
+            }
+        };
+        $(".layui-btn.layuiadmin-btn-admin").on("click", function () {
+            var type = $(this).data("type");
+            if (typeof events[type] == "function") {
+                events[type].call(this);
+            }
+        });
+    });
+</script>

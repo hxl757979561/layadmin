@@ -1,0 +1,61 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Listen for XDebug",
+            "type": "php",
+            "request": "launch",
+            "port": 9001,
+            "xdebugSettings": {
+                "max_children": 128,
+                "max_data": 8192
+            }
+        },
+        {
+            "name": "Launch for Script",
+            "type": "php",
+            "request": "launch",
+            "program": "${file}",
+            "cwd": "${fileDirname}",
+            "port": 9001,
+            "xdebugSettings": {
+                "max_children": 128,
+                "max_data": 8192
+            }
+        },
+        {
+            "name": "Remote for xDebug",
+            "type": "php",
+            "request": "launch",
+            "port": 9001,
+            "pathMappings": {
+                "/data/wwwroot/admin" : "${workspaceRoot}"
+            },
+            "xdebugSettings": {
+                "max_data": 4096,
+                "max_children": 128,
+                "show_hidden": 0
+            }
+        },
+        {
+            "name": "Launch to Chrome",
+            "type": "chrome",
+            "request": "launch",
+            "url": "${file}",
+            "runtimeExecutable": "chrome",
+            "runtimeArgs": [
+                "--remote-debugging-port=9222"
+            ],
+            "sourceMaps": true,
+            "webRoot": "${fileDirname}"
+        },
+        {
+            "name": "Attach to Chrome",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9222,
+            "sourceMaps": true,
+            "webRoot": "${fileDirname}"
+        },
+    ]
+}

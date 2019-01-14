@@ -1,0 +1,123 @@
+<script type="text/html" template>
+    <script type="text/javascript" src="{{ layui.setter.base }}js/common.js?v={{ layui.admin.v }}"></script>
+</script>
+<title>代理商列表</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>代理信息</cite></a>
+        <a><cite>代理商列表</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-dailishanglist-formlist">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">游戏ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="youxi_id" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">代理ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="phone" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">代理昵称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="daili_name" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="LAY-user-back-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-admin layuiadmin-dailishangadd-btn" data-type="append">添加</button>
+            </div>
+
+            <table id="LAY-user-back-manage" lay-filter="LAY-user-back-manage"></table>
+            <script type="text/html" id="buttonTpl">
+            {{#  if(d.status == 0){ }}
+                <button class="layui-btn  layui-btn-xs">正常</button>   
+            {{#  } else if(d.status == 7) { }}
+                <button class="layui-btn layui-btn-xs layui-btn-warm">冻结一周</button>
+            {{#  } else if(d.status == 30) { }}
+                <button class="layui-btn layui-btn-xs layui-btn-warm">冻结一月</button>
+            {{# } else { }}        
+                <button class="layui-btn layui-btn-primary layui-btn-xs">永久冻结</button>
+            {{#  } }}      
+            </script>
+            <script type="text/html" id="table-dailishanglist-admin">
+            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            </script>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use('dailishanglist', layui.factory('dailishanglist')).use(['admin', 'dailishanglist', 'table'], function () {
+        var $ = layui.$,
+            layer = layui.layer,
+            admin = layui.admin,
+            form = layui.form,
+            view = layui.view,
+            table = layui.table
+
+        form.render(null, "layadmin-dailishanglist-formlist");
+
+        var events = {
+            batchDel: function () {
+                var checkStatus = table.checkStatus("LAY-user-back-manage"),
+                    checkData = checkStatus.data; //得到选中的数据
+                if (checkData.length === 0) {
+                    return layer.msg("请选择进行操作的数据");
+                }
+            },     
+            append: function () {
+                admin.popup({
+                    title: "添加新代理",
+                    area: ["450px", "550px"],
+                    id: "LAY-popup-dailishang-add",
+                    success: function (layero, index) {
+                        view(this.id)
+                            .render("/setting/dailishang/dailishangform")
+                            .done(function () {
+                                form.render(null, "layuiadmin-form-dailishang");
+                                form.on("submit(LAY-user-back-submit)", function (data) {
+                                    admin.req({
+                                        url: "/api/dailishang/register",
+                                        type: "POST",
+                                        data: data.field,
+                                        success: function(res) {
+                                            layer.close(index);
+                                            if (res.code == 0) {
+                                                layer.msg(res.msg);
+                                                table.reload("LAY-user-back-manage");
+                                            }
+                                        }
+                                    })
+                                });
+                            });
+                    }
+                });
+            }
+        };
+        $(".layuiadmin-dailishangadd-btn").on("click", function () {
+            var type = $(this).data("type");
+            if (typeof events[type] == "function") {
+                events[type].call(this);
+            }
+        });
+    });
+</script>

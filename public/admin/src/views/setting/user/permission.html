@@ -1,0 +1,107 @@
+<title>权限管理</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>用户</cite></a>
+        <a><cite>权限管理</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layui-btn-warm admin-btn-permission" data-type="batchDel">删除</button>
+                <button class="layui-btn admin-btn-permission" data-type="append">添加</button>
+            </div>
+            <table id="user-back-permission" class="layui-table" lay-filter="user-back-permission"></table>
+            <script type="text/html" id="table-permission-admin">
+            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+            <script type="text/html" id="visibleTpl">
+            {{#  if(d.visible){ }}
+                <button class="layui-btn layui-btn-primary layui-btn-xs">是</button>
+            {{#  } else { }}
+                <button class="layui-btn layui-btn-xs">否</button>
+            {{#  } }}
+            </script>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use('useradmin', layui.factory('useradmin')).use(['admin', 'useradmin', 'table'], function () {
+        var $ = layui.$
+            , admin = layui.admin
+            , view = layui.view
+            , table = layui.table
+            , form = layui.form
+            , useradmin = layui.useradmin;
+
+        var events = {
+            batchDel: function () {
+                var checkStatus = table.checkStatus('user-back-permission')
+                    , checkData = checkStatus.data;
+                if (checkData.length === 0) {
+                    return layer.msg('请选择进行操作的数据');
+                }
+
+                layer.confirm(
+                    "确定要删除选定的权限吗?", {
+                        btn: ['确认删除', '我再想想'],
+                        yes: function (index) {
+                            admin.req({
+                                url: "/api/permissions/delete",
+                                type: "POST",
+                                data: { list: checkData },
+                                success: function (res) {
+                                    layer.close(index);
+                                    if (res.code == 0) {
+                                        layer.msg("选定的权限已删除成功!");
+                                        useradmin.permissionReload();
+                                    }
+                                }
+                            })
+                        }
+                    }
+                )
+            },
+            append: function () {
+                admin.popup({
+                    title: "添加新权限",
+                    area: ["650px", "600px"],
+                    resize: false,
+                    id: "LAY-popup-permission-add",
+                    success: function (layero, index) {
+                        view(this.id)
+                            .render("/setting/user/permissionform")
+                            .done(function () {
+                                form.render(null, "admin-form-permission");
+                                form.on("submit(user-permission-submit)", function (data) {
+                                    admin.req({
+                                        url: "/api/permissions/add",
+                                        type: "POST",
+                                        data: data.field,
+                                        done: function (res) {
+                                            layer.close(index);
+                                            useradmin.permissionReload();
+                                        }
+                                    })
+                                });
+                            });
+                    }
+                });
+            }
+        }
+
+        $('.layui-btn.admin-btn-permission').on('click', function () {
+            var type = $(this).data("type");
+            if (typeof events[type] == "function") {
+                events[type].call(this);
+            }
+        });
+        useradmin.permissionReload();
+    });
+</script>

@@ -1,0 +1,74 @@
+<div class="layui-form" lay-filter="layuiadmin-form-admin" style="padding: 20px 30px 0 0;">
+    <script type="text/html" template>
+        <input type="hidden" name="id" value="{{ d.params.id || '' }}">
+    </script>
+    <div class="layui-form-item">
+        <label class="layui-form-label">代理昵称</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="daili_name" value="{{ d.params.daili_name || '' }}"  autocomplete="off" class="layui-input" readonly>
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">代理游戏ID</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="youxi_id" value="{{ d.params.youxi_id || '' }}"  autocomplete="off" class="layui-input" readonly>
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">提现状态</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <select name="status" lay-verify="required" id="status">
+                    <option value="0" {{ d.params.status==0 ? 'selected' : '' }}>待审核</option>
+                    <option value="1" {{ d.params.status==1 ? 'selected' : '' }}>待付款</option>
+                    <option value="2" {{ d.params.status==2 ? 'selected' : '' }}>已冻结</option>
+                    <option value="3" {{ d.params.status==3 ? 'selected' : '' }}>支付中</option>
+                    <option value="4" {{ d.params.status==4 ? 'selected' : '' }}>已结账</option>
+                    <option value="5" {{ d.params.status==5 ? 'selected' : '' }}>已驳回</option>
+                    <option value="6" {{ d.params.status==6 ? 'selected' : '' }}>观察中</option>
+                </select>
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <input type="button" lay-submit lay-filter="LAY-user-back-submit" value="确认" class="layui-btn">
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['admin', 'form', 'setter', 'formSelects'], function () {
+        var $ = layui.$,
+            form = layui.form,
+            admin = layui.admin,
+            setter = layui.setter,
+            formSelects = layui.formSelects;
+
+        layui.link(setter.base + "style/formSelects-v4.css?v=" + (admin.v + "-1"));
+
+        waitForElement("input[name='id']", 5000).then(function (ele) {
+            var user = $("input[name='id']");
+            formSelects.config('roleSelect', {
+                type: 'post',
+                keyName: 'show_name',
+                keyVal: 'id',
+                keySel: 'selected',
+                keyDis: 'disabled',
+                direction: 'auto',
+                response: {
+                    statusCode: 0,
+                    statusName: 'code',
+                    msgName: 'msg',
+                    dataName: 'data'
+                },
+                clearInput: false,
+            }, false);
+        }).catch(alert);
+    });
+</script>

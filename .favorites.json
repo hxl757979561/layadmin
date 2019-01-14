@@ -1,0 +1,50 @@
+[
+    {
+        "type": "Directory",
+        "name": "/Users/tianxin/Websites/layadmin/public/admin",
+        "parent_id": null,
+        "workspaceRoot": "/Users/tianxin/Websites/layadmin",
+        "workspacePath": "public/admin",
+        "id": "tIpKzmjA27eiVsoJ"
+    },
+    {
+        "type": "Directory",
+        "name": "/Users/tianxin/Websites/layadmin/app/Api",
+        "parent_id": null,
+        "workspaceRoot": "/Users/tianxin/Websites/layadmin",
+        "workspacePath": "app/Api",
+        "id": "a0JeqWzknF39HB7m"
+    },
+    {
+        "type": "Directory",
+        "name": "/Users/tianxin/Websites/layadmin/routes",
+        "parent_id": null,
+        "workspaceRoot": "/Users/tianxin/Websites/layadmin",
+        "workspacePath": "routes",
+        "id": "YdRsk2X5aj6G8znh"
+    },
+    {
+        "type": "Directory",
+        "name": "/Users/tianxin/Websites/layadmin/app/Http",
+        "parent_id": null,
+        "workspaceRoot": "/Users/tianxin/Websites/layadmin",
+        "workspacePath": "app/Http",
+        "id": "cHVJKGbnhuzg03Cw"
+    },
+    {
+        "type": "Directory",
+        "name": "/Users/tianxin/Websites/layadmin/app/Services",
+        "parent_id": null,
+        "workspaceRoot": "/Users/tianxin/Websites/layadmin",
+        "workspacePath": "app/Services",
+        "id": "uaVoFB4CeKOxi6ky"
+    },
+    {
+        "type": "Directory",
+        "name": "/Users/tianxin/Websites/layadmin/config",
+        "parent_id": null,
+        "workspaceRoot": "/Users/tianxin/Websites/layadmin",
+        "workspacePath": "config",
+        "id": "XjYM0dkSKtP4nAu8"
+    }
+]

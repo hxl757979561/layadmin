@@ -1,0 +1,81 @@
+<div class="layui-form" lay-filter="layuiadmin-form-role" style="padding: 20px 30px 0 0;">
+    <script type="text/html" template>
+        <input type="hidden" name="id" value="{{ d.params.id || '' }}">
+    </script>
+    <div class="layui-form-item">
+        <label class="layui-form-label">角色名称</label>
+        <div class="layui-input-block">
+            <script type="text/html" template>
+                <input type="text" name="show_name" title="显示名称" value="{{ d.params.show_name || '' }}" 
+                class="layui-input" lay-verify="required" placeholder="角色显示名称" autocomplete="off">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">角色标识</label>
+        <div class="layui-input-block">
+            <script type="text/html" template>
+                <input type="text" name="name" title="角色名称" value="{{ d.params.name || '' }}" class="layui-input" lay-verify="required|name" placeholder="角色唯一标识(英文字母)" autocomplete="off">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">选择权限</label>
+        <div class="layui-input-block">
+            <div id="role-auth-tree"></div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <input type="button" lay-submit lay-filter="LAY-user-role-submit" value="确认" class="layui-btn layui-btn-normal">
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['admin', 'form', 'authtree', 'layer'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            admin = layui.admin,
+            authtree = layui.authtree;
+
+        form.verify({
+            name : function(value) {
+                if (!/^[a-zA-z]([a-zA-z0-9_])+$/.test(value)){
+                    return "角色标识符首字母只能为英文字母";
+                }
+            }
+        });
+
+        waitForElement("input[name='id']", 5000).then(function(ele){
+            var role = $("input[name='id']");
+            admin.req({
+                url: "/api/permissions/allPermission",
+                type: "POST",
+                data: {
+                    id: role.val()
+                },
+                done: function (res) {
+                    if (res.code == 0) {
+                        var trees = authtree.listConvert(res.data, {
+                            primaryKey: "id",
+                            parentKey: "parent_id",
+                            nameKey: "show_name",
+                        });
+                        authtree.render('#role-auth-tree', trees, {
+                            inputname: 'permissions[]',
+                            layfilter: 'lay-check-auth',
+                            autowidth: true,
+                            openall: true,
+                        });
+                        authtree.on('change(lay-check-auth)', function (data) {
+                            var checked = authtree.getChecked('#role-auth-tree');
+                        })
+                    }
+                }
+            })
+        }).catch(alert);
+
+    });
+</script>

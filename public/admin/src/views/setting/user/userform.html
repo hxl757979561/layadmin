@@ -1,0 +1,131 @@
+<div class="layui-form" lay-filter="layuiadmin-form-admin" style="padding: 20px 30px 0 0;">
+    <script type="text/html" template>
+        <input type="hidden" name="id" value="{{ d.params.id || '' }}">
+    </script>
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户名</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                {{# if (d.params.username) { }}
+                <input type="text" name="username" value="{{ d.params.username }}" lay-verify="required|username"  autocomplete="off" class="layui-input" readonly>
+                {{# } else { }}
+                <input type="text" name="username" lay-verify="required|username" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+                {{# } }}  
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">密码</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                {{# if (d.params.id) { }}
+                <input type="password" name="password" lay-verify="password" placeholder="不修改密码请留空" autocomplete="off" class="layui-input pass">
+                {{# } else { }}
+                <input type="password" name="password" lay-verify="required|password" placeholder="请输入用户密码" autocomplete="off" class="layui-input pass">
+                {{# } }}  
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">手机</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="phone" value="{{ d.params.phone || '' }}" lay-verify="phone" placeholder="请输入手机号码" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">邮箱</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="email" value="{{ d.params.email || '' }}" lay-verify="email" placeholder="请输入邮箱" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">角色</label>
+        <div class="layui-input-inline">
+            <select name="role" xm-select="roleSelect">
+            </select>            
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">审核状态</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <select name="status" lay-verify="required" id="status">
+                    <option value="0" {{ d.params.status==0 ? 'selected' : '' }}>待审核</option>
+                    <option value="1" {{ d.params.status==1 ? 'selected' : '' }}>已审核</option>
+                    <option value="2" {{ d.params.status==2 ? 'selected' : '' }}>已禁用</option>
+                </select>
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <input type="button" lay-submit lay-filter="LAY-user-back-submit" value="确认" class="layui-btn">
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['admin', 'form', 'setter', 'formSelects'], function () {
+        var $ = layui.$,
+            form = layui.form,
+            admin = layui.admin,
+            setter = layui.setter,
+            formSelects = layui.formSelects;
+
+        layui.link(setter.base + "style/formSelects-v4.css?v=" + (admin.v + "-1"));
+
+        //自定义验证
+        form.verify({
+            username: function(value) {
+                if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                    return "用户名不能有特殊字符";
+                }
+                if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                    return "用户名首尾不能出现下划线'_'";
+                }
+            },
+            password: function(value) {
+                if (value && !/^[\S]{6,16}$/.test(value)) {
+                    return "密码必须6到16位，且不能出现空格";
+                }
+            }
+        });
+
+        waitForElement("input[name='id']", 5000).then(function (ele) {
+            var user = $("input[name='id']");
+            formSelects.config('roleSelect', {
+                type: 'post',
+                keyName: 'show_name',
+                keyVal: 'id',
+                keySel: 'selected',
+                keyDis: 'disabled',
+                direction: 'auto',
+                response: {
+                    statusCode: 0,
+                    statusName: 'code',
+                    msgName: 'msg',
+                    dataName: 'data'
+                },
+                clearInput: false,
+            }, false);
+
+            admin.req({
+                url: "/api/roles/allRoles",
+                type: "POST",
+                data: {
+                    id: user.val()
+                },
+                done: function (res) {
+                    formSelects.data('roleSelect', 'local', {
+                        arr: res.data,
+                    });
+                }
+            });
+        }).catch(alert);
+    });
+</script>

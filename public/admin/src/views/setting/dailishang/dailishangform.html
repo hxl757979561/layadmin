@@ -1,0 +1,65 @@
+<div class="layui-form" lay-filter="layuiadmin-form-dailishang" style="padding: 20px 30px 0 0;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">游戏ID</label>
+        <div class="layui-input-inline">
+            <input type="text" name="youxi_id" value="" lay-verify="youxi_id" placeholder="请输入游戏ID" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">代理昵称</label>
+        <div class="layui-input-inline">
+            <input type="text" name="daili_name" value="" lay-verify="required|daili_name" placeholder="请输入代理昵称" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">登录密码</label>
+        <div class="layui-input-inline">
+            <input type="password" name="password" value="" lay-verify="required|password" placeholder="请输入用户密码" autocomplete="off" class="layui-input pass">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">手机号码</label>
+        <div class="layui-input-inline">
+            <input type="text" name="phone" id="phone" value="" lay-verify="phone" placeholder="请输入手机号码" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <input type="button" lay-submit lay-filter="LAY-user-back-submit" value="确认" class="layui-btn">
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['admin', 'form', 'setter', 'formSelects'], function () {
+        var $ = layui.$,
+            form = layui.form,
+            admin = layui.admin,
+            setter = layui.setter,
+            formSelects = layui.formSelects;
+        //layui.link(setter.base + "style/formSelects-v4.css?v=" + (admin.v + "-1"));
+
+        //自定义验证
+        form.verify({
+            youxi_id: function(value) {
+                if (!new RegExp("^[1-9][0-9]{4,10}$").test(value)) {
+                    return "游戏ID格式错误";
+                }
+            },
+            daili_name: function(value) {
+                if (!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)) {
+                    return "用户名不能有特殊字符";
+                }
+                if (/(^\_)|(\__)|(\_+$)/.test(value)) {
+                    return "用户名首尾不能出现下划线'_'";
+                }
+            },
+            password: function(value) {
+                if (value && !/^[\S]{6,16}$/.test(value)) {
+                    return "密码必须6到16位，且不能出现空格";
+                }
+            },
+        });
+    });
+</script>

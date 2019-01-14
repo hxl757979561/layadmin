@@ -1,0 +1,182 @@
+<script type="text/html" template>
+    <script type="text/javascript" src="{{ layui.setter.base }}js/common.js?v={{ layui.admin.v }}"></script>
+</script>
+<title>代理商结账</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>代理信息</cite></a>
+        <a><cite>代理商结账列表</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-dailishangcharge-formlist">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">游戏ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="youxi_id" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">代理ID</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="phone" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">代理昵称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="daili_name" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">支付方式</label>
+                    <div class="layui-input-block">
+                        <select name="paytype" lay-verify="">
+                            <option value="">全部</option>
+                            <option value="2">支付宝</option>
+                            <option value="3">农业银行</option>
+                            <option value="4">工商银行</option>
+                            <option value="5">建设银行</option>
+                            <option value="6">招商银行</option>
+                          </select>   
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="LAY-user-back-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body">
+          
+            <table id="LAY-user-back-manage" lay-filter="LAY-user-back-manage"></table>
+            <script type="text/html" id="paytypebuttonTpl">
+            {{#  if(d.paytype == 2){ }}
+                <button class="layui-btn  layui-btn-xs">支付宝</button>   
+            {{#  } else if(d.paytype == 3) { }}
+                <button class="layui-btn  layui-btn-xs">农业银行</button>
+            {{#  } else if(d.paytype == 4) { }}
+                <button class="layui-btn  layui-btn-xs">工商银行</button>
+            {{#  } else if(d.paytype == 5) { }}
+                <button class="layui-btn  layui-btn-xsm">建设银行</button>
+            {{#  } else if(d.paytype == 6) { }}
+                <button class="layui-btn  layui-btn-xs">招商银行</button>                 
+            {{# } else { }}       
+
+            {{#  } }}
+            </script> 
+            <script type="text/html" id="buttonTpl">     
+            {{#  if(d.status == 0){ }}
+                <button class="layui-btn  layui-btn-warm">待审核</button>   
+            {{#  } else if(d.status == 1) { }}
+                <button class="layui-btn layui-btn-xs layui-btn-warm">待付款</button>
+            {{#  } else if(d.status == 2) { }}
+                <button class="layui-btn layui-btn-xs layui-btn-warm">已冻结</button>
+            {{#  } else if(d.status == 3) { }}
+                <button class="layui-btn layui-btn-xs layui-btn-warm">处理中</button>
+            {{#  } else if(d.status == 4) { }}
+                <button class="layui-btn layui-btn-xs layui-btn-xs">已结账</button>
+            {{#  } else if(d.status == 5) { }}
+                <button class="layui-btn layui-btn-xs layui-btn-xs">已驳回</button>           
+            {{# } else { }}        
+                <button class="layui-btn layui-btn-primary layui-btn-xs">观察中</button>
+            {{#  } }}      
+            </script>
+            <script type="text/html" id="table-dailishangcharge-admin">
+            {{#  if(d.status == 0){ }}
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            {{#  } else if(d.status == 1) { }}
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            {{#  } else if(d.status == 2) { }}
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            {{#  } else if(d.status == 3) { }}
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            {{# } else { }}   
+                <a class="layui-btn layui-btn-normal layui-btn-xs layui-disabled"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            {{#  } }}      
+            </script>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use('dailishangcharge', layui.factory('dailishangcharge')).use(['admin', 'dailishangcharge', 'table'], function () {
+        var $ = layui.$,
+            layer = layui.layer,
+            admin = layui.admin,
+            form = layui.form,
+            view = layui.view,
+            table = layui.table
+
+        form.render(null, "layadmin-dailishangcharge-formlist");
+
+        var events = {
+            batchDel: function () {
+                var checkStatus = table.checkStatus("LAY-user-back-manage"),
+                    checkData = checkStatus.data; //得到选中的数据
+                if (checkData.length === 0) {
+                    return layer.msg("请选择进行操作的数据");
+                }
+
+                layer.confirm(
+                    "确定要删除选定的用户吗?", {
+                        btn : ['确认删除', '我再想想'],
+                        yes : function(index) {
+                            admin.req({
+                                url: "/api/user/delete",
+                                type: "POST",
+                                data: { list: checkData },
+                                success: function(res) {
+                                    layer.close(index);
+                                    if (res.code == 0) {
+                                        layer.msg("选定的用户已删除成功!");
+                                        table.reload("LAY-user-back-manage");
+                                    }
+                                }
+                            })
+                        }
+                    }
+                )
+            },
+            append: function () {
+                admin.popup({
+                    title: "添加管理员",
+                    area: ["450px", "550px"],
+                    resize: false,
+                    id: "LAY-popup-useradmin-add",
+                    success: function (layero, index) {
+                        view(this.id)
+                            .render("/setting/user/userform")
+                            .done(function () {
+                                form.render(null, "layuiadmin-form-admin");
+                                form.on("submit(LAY-user-back-submit)", function (data) {
+                                    admin.req({
+                                        url: "/api/user/register",
+                                        type: "POST",
+                                        data: data.field,
+                                        done : function(res) {
+                                            layui.table.reload("LAY-user-back-manage"); //重载表格
+                                            layer.close(index);     //执行关闭
+                                        }
+                                    })
+                                });
+                            });
+                    }
+                });
+            }
+        };
+        $(".layui-btn.layuiadmin-btn-admin").on("click", function () {
+            var type = $(this).data("type");
+            if (typeof events[type] == "function") {
+                events[type].call(this);
+            }
+        });
+    });
+</script>

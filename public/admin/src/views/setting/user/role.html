@@ -1,0 +1,106 @@
+<title>角色管理</title>
+
+<script type="text/html" template>
+    <script type="text/javascript" src="{{ layui.setter.base }}js/common.js?v={{ layui.admin.v }}"></script>
+</script>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>用户</cite></a>
+        <a><cite>角色管理</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layui-btn-warm admin-btn-role" data-type="batchDel">删除</button>
+                <button class="layui-btn admin-btn-role" data-type="append">添加</button>
+            </div>
+            <table id="LAY-user-back-role" lay-filter="LAY-user-back-role"></table>
+            <script type="text/html" id="table-role-admin">
+            {{# if(d.name=='Admin') { }}
+            <a class="layui-btn layui-disabled layui-btn-xs" ><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            <a class="layui-btn layui-disabled layui-btn-danger layui-btn-xs"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            {{# } else { }}
+            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            {{#  } }}
+            </script>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use('useradmin', layui.factory('useradmin')).use(['admin', 'useradmin', 'table'], function () {
+        var $ = layui.$
+            , admin = layui.admin
+            , view = layui.view
+            , table = layui.table
+            , form = layui.form;
+
+        var events = {
+            batchDel: function () {
+                var checkStatus = table.checkStatus('LAY-user-back-role')
+                    , checkData = checkStatus.data;     //得到选中的数据
+                if (checkData.length === 0) {
+                    return layer.msg('请选择进行操作的数据');
+                }
+
+                layer.confirm(
+                    "确定要删除选定的用户角色吗?", {
+                        btn : ['确认删除', '我再想想'],
+                        yes : function(index) {
+                            admin.req({
+                                url: "/api/roles/delete",
+                                type: "POST",
+                                data: { list: checkData },
+                                success: function(res) {
+                                    layer.close(index);
+                                    if (res.code == 0) {
+                                        layer.msg("选定的角色已删除成功!");
+                                        table.reload("LAY-user-back-role");
+                                    }
+                                }
+                            })
+                        }
+                    }
+                )
+            },
+            append: function () {
+                admin.popup({
+                    title: "添加新角色",
+                    area: ["660px", "768px"],
+                    id: "LAY-popup-userrole-add",
+                    success: function (layero, index) {
+                        view(this.id)
+                            .render("/setting/user/roleform")
+                            .done(function () {
+                                form.render(null, "layuiadmin-form-role");
+                                form.on("submit(LAY-user-role-submit)", function (data) {
+                                    admin.req({
+                                        url: "/api/roles/add",
+                                        type: "POST",
+                                        data: data.field,
+                                        done : function(res) {
+                                            layui.table.reload('LAY-user-back-role');
+                                            layer.close(index);
+                                        }
+                                    })
+                                });
+                            });
+                    }
+                });
+            }
+        }
+
+        $('.layui-btn.admin-btn-role').on('click', function () {
+            var type = $(this).data("type");
+            if (typeof events[type] == "function") {
+                events[type].call(this);
+            }
+        });
+    });
+</script>
